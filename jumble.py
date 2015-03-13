@@ -1,7 +1,10 @@
 import sys
-if len(sys.argv) != 2:
-	print('Usage: jumble.py <jumble string>')
-string = sys.argv[1].strip()
+#if the user entered string on command line, use that else ask for input
+if len(sys.argv) >= 2:
+	string = sys.argv[1].strip()
+else:
+	string = raw_input('Enter jumble string: ')
+
 stringLen = len(string)
 
 #Add words of equal or lesser size to set. (research said that the Python set was fastest data structure for membership testing so I'm working off of that assumption)
@@ -10,8 +13,8 @@ words = set(x.strip() for x in open("wordList.txt") if len(x.strip()) <= stringL
 #List of words to return
 retList = []
 
-#Recursive function to create every permutation with the given letters and check membership
-def checkPerm(wordSoFar, lettersToUse):
+#Recursive function to create every permutation with the given letters and add the ones that are english words to the list
+def getWords(wordSoFar, lettersToUse):
 	#if the current permutation is an English word add it to the list	
 	if wordSoFar in words:
 		retList.append(wordSoFar)
@@ -23,15 +26,18 @@ def checkPerm(wordSoFar, lettersToUse):
 	i = 0
 	c = ''
 	while i < len(lettersToUse):
+		#Wait for unique char
 		if lettersToUse[i] == c:
 			i+=1
-			continue
+			continue		
 		c = lettersToUse[i]
-		checkPerm(wordSoFar+c, lettersToUse[:i] + lettersToUse[i+1:])
+		getWords(wordSoFar+c, lettersToUse[:i] + lettersToUse[i+1:])
 		i+=1
 
+#helper function to more easily call the recursive function
 def jumble(s):
-	checkPerm("", ''.join(sorted(s.strip())))	
+	#Call recursive function. sort the letters so function can easily iterate through unique chars as it builds the permutations
+	getWords("", ''.join(sorted(s.strip())))	
 	
 #Initial function call with the string passed in via command line
 jumble(string)
